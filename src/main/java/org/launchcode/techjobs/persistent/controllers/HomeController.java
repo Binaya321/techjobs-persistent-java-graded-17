@@ -36,13 +36,14 @@ public class HomeController {
     public String index(Model model) {
 
         model.addAttribute("title", "MyJobs");
+        model.addAttribute("jobs", jobRepository.findAll());
 
         return "index";
     }
 
     @GetMapping("add")
     public String displayAddJobForm(Model model) {
-	model.addAttribute("title", "Add Job");
+        model.addAttribute("title", "Add Job");
         model.addAttribute(new Job());
         model.addAttribute("employers", employerRepository.findAll());
         model.addAttribute("skills", skillRepository.findAll());
@@ -51,16 +52,16 @@ public class HomeController {
 
     @PostMapping("add")
     public String processAddJobForm(@ModelAttribute @Valid Job newJob,
-                                       Errors errors, Model model, @RequestParam int employerId,
-                                    @RequestParam List<Integer>skills) {
+                                    Errors errors, Model model, @RequestParam int employerId,
+                                    @RequestParam List<Integer> skills) {
 
         if (errors.hasErrors()) {
-	    model.addAttribute("title", "Add Job");
+            model.addAttribute("title", "Add Job");
             return "add";
         }
 
-        Optional <Employer> specificEmployer = employerRepository.findById(employerId);
-        if(specificEmployer.isPresent()){
+        Optional<Employer> specificEmployer = employerRepository.findById(employerId);
+        if (specificEmployer.isPresent()) {
             Employer employer = specificEmployer.get();
             newJob.setEmployer(employer);
         }
@@ -75,8 +76,12 @@ public class HomeController {
 
     @GetMapping("view/{jobId}")
     public String displayViewJob(Model model, @PathVariable int jobId) {
-
+        Optional displayViewJob = jobRepository.findById(jobId);
+        if (displayViewJob.isPresent()) {
+            Job job = (Job) displayViewJob.get();
+            model.addAttribute("job", job);
             return "view";
+        } else return "redirect:../";
     }
-
 }
+
